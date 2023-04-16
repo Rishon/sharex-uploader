@@ -10,15 +10,17 @@ SERVER_NAME = 'i.rishon.systems'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['SERVER_NAME'] = SERVER_NAME
+app.config['SERVER_NAME'] = SERVER_NAME 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def generate_filename():
+def generate_filename(filename):
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(4)) + '.png'
+    ext = filename.rsplit('.', 1)[1].lower()
+    return ''.join(random.choice(letters) for i in range(6)) + '.' + ext
+
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -31,10 +33,11 @@ def upload_file():
         return jsonify({'error': 'No file selected'})
 
     if file and allowed_file(file.filename):
-        filename = generate_filename()
+        filename = generate_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         url = f"https://{SERVER_NAME}/{filename}"
         return jsonify({'url': url})
+
 
     return jsonify({'error': 'File type not allowed'})
 
