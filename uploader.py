@@ -27,6 +27,9 @@ def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file selected'})
 
+    if 'secret_code' not in request.form or request.form['secret_code'] != 'your_secret_code':
+        return jsonify({'error': 'Unauthorized access'})
+
     file = request.files['file']
 
     if file.filename == '':
@@ -37,7 +40,6 @@ def upload_file():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         url = f"https://{SERVER_NAME}/{filename}"
         return jsonify({'url': url})
-
 
     return jsonify({'error': 'File type not allowed'})
 
